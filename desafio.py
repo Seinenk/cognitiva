@@ -13,6 +13,7 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 # Configurações dos modelos usados no OpenRouter
 MODELS = {
     "Mistral": "cognitivecomputations/dolphin3.0-r1-mistral-24b:free",
+    "DeepSeek": "deepseek/deepseek-r1:free",
     "Google Gemini": "google/gemini-2.0-flash-lite-preview-02-05:free"
 }
 
