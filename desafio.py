@@ -47,7 +47,9 @@ def get_response(model, question):
     if response.status_code == 200:
         return response.json().get("choices", [{}])[0].get("message", {}).get("content", "No response")
     else:
-        return f"Erro na API {model}: {response.status_code} - {response.text}"
+        print(
+            f"⚠️ Erro na API {model}: {response.status_code} - {response.text}")
+        return f"Erro na API {model}"
 
 
 # Coletar respostas dos modelos
@@ -67,17 +69,20 @@ def evaluate_responses(responses):
     return scores
 
 
-# Função para autoavaliação assistida por IA (usando Google Gemini para avaliar respostas)
-def autoevaluate_responses(responses):
+# Função genérica para autoavaliação assistida por IA
+def autoevaluate_responses(responses, evaluator_name):
     evaluation_prompt = "Aqui estão respostas de diferentes modelos de IA para a mesma pergunta. Avalie e classifique as respostas com base nos critérios: clareza, precisão, criatividade e gramática. Justifique sua escolha.\n"
+
     for model, response in responses.items():
         evaluation_prompt += f"\n[{model}]:\n{response}\n"
 
-    return get_response(MODELS["Google Gemini"], evaluation_prompt)
+    print(f"\n🔄 Solicitando avaliação do modelo {evaluator_name}...")
+    return get_response(MODELS[evaluator_name], evaluation_prompt)
 
 
 # Exibir respostas e avaliações
 def print_responses(responses):
+    print("\n📌 Respostas obtidas:")
     for model, response in responses.items():
         print(f"\n[{model}]:\n{response}\n")
 
@@ -86,8 +91,15 @@ def print_responses(responses):
     for model, score in scores.items():
         print(f"{model}: {score:.2f}")
 
+    # Chamar a autoavaliação para cada modelo
+    evaluations = {}
+    for evaluator in MODELS.keys():
+        evaluations[evaluator] = autoevaluate_responses(responses, evaluator)
+
+    # Exibir todas as avaliações separadamente
     print("\n🤖 Autoavaliação das respostas pela IA:")
-    print(autoevaluate_responses(responses))
+    for evaluator, evaluation in evaluations.items():
+        print(f"\n📢 Avaliação feita pelo {evaluator}:\n{evaluation}\n")
 
 
 # Executar o código
